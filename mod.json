@@ -21,7 +21,7 @@
 		"enhancement",
 		"gameplay"
 	],
-			"dependencies": {
+	"dependencies": {
 		"geode.node-ids": {
 			"version": ">=v1.12.0-beta.4",
 			"importance": "required"
@@ -69,11 +69,11 @@
 			"type": "bool"
 		}
 	},
-	"incompatibilities": [
-		{
-			"id": "thesillydoggo.moretags",
+		"incompatibilities": {
+		"thesillydoggo.moretags": {
 			"importance": "breaking",
 			"version": "*"
 		}
-	]
+	}
 }
+
