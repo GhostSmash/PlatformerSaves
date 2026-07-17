@@ -1,3 +1,16 @@
+#include <fstream>
+
+// Наша простая функция логирования
+void writeCustomLog(const std::string& message) {
+    try {
+        std::filesystem::path logPath = ::geode::Mod::get()->getSaveDir() / "debug_log.txt";
+        std::ofstream logFile(logPath, std::ios::app);
+        if (logFile.is_open()) {
+            logFile << message << "\n";
+            logFile.close();
+        }
+    } catch (...) {}
+}
 #include "PlayLayer.hpp"
 #include "CheckpointObject.hpp"
 #include "Geode/binding/PlayLayer.hpp"
@@ -252,22 +265,31 @@ std::string PSPlayLayer::getSaveFilePath(int i_slot, bool i_checkExists) {
     }
     if (i_slot == -1) i_slot = 0;
 
-    if (!m_level) return "";
+    if (!m_level) {
+        writeCustomLog("Ошибка: m_level пустой");
+        return "";
+    }
 
-    // Получаем базовую папку сохранений мода
+    // Базовый путь: .../ghostsmash.platformersaves/
     std::filesystem::path saveDir = geode::Mod::get()->getSaveDir();
     
-    // Определяем имя папки для уровня. Если это редактор (ID = 0), используем имя уровня
+    // Проверяем тип уровня: редактор или онлайн (локальные/официальные тоже пойдут в online или по ID)
+    std::string typeFolder = (m_level->m_levelID.value() == 0) ? "editor" : "online";
+    
+    // ID левела или имя папки для редактора
     std::string levelFolder = (m_level->m_levelID.value() == 0) 
         ? "editor_" + std::string(m_level->m_levelName) 
         : std::to_string(m_level->m_levelID.value());
 
-    // Формируем путь к подпапке уровня: .../saves/[levelFolder]/
-    std::filesystem::path levelDir = saveDir / levelFolder;
+    // Собираем полный путь к папке: .../ghostsmash.platformersaves/saves/[online|editor]/[id]/
+    std::filesystem::path finalDir = saveDir / "saves" / typeFolder / levelFolder;
     
-    // Имя файла внутри папки
-    std::string fileName = fmt::format("save_{}.psf", i_slot);
-    std::filesystem::path fullPath = levelDir / fileName;
+    // Имя файла: slot[номер].psf
+    std::string fileName = fmt::format("slot{}.psf", i_slot);
+    std::filesystem::path fullPath = finalDir / fileName;
+
+    // Пишем в наш файл логов, какой путь сейчас проверяется/создается
+    writeCustomLog("Запрос пути. Файл: " + fullPath.string() + " | Существует: " + (std::filesystem::exists(fullPath) ? "ДА" : "НЕТ"));
 
     if (i_checkExists && !std::filesystem::exists(fullPath)) {
         return "";
