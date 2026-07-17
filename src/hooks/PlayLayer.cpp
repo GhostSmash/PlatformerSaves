@@ -207,29 +207,7 @@ void PSPlayLayer::checkpointActivated(CheckpointGameObject* i_object) {
     PlayLayer::checkpointActivated(i_object);
 
     writeCustomLog("--- Сработал хук checkpointActivated! ---");
-
-    if (!savesEnabled() || m_isPracticeMode) return;
-
-    PSCheckpointObject* l_checkpointObject = static_cast<PSCheckpointObject*>(PlayLayer::markCheckpoint());
-    if (!l_checkpointObject) {
-        writeCustomLog("Ошибка: markCheckpoint() внутри checkpointActivated вернул nullptr");
-        return;
-    }
-
-    if (!m_fields->m_normalModeCheckpoints->containsObject(l_checkpointObject)) {
-        l_checkpointObject->m_fields->m_timePlayed = m_timePlayed;
-        l_checkpointObject->m_fields->m_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()
-        ).count();
-        m_fields->m_normalModeCheckpoints->addObject(l_checkpointObject);
-        writeCustomLog("Чекпоинт добавлен через checkpointActivated");
-    }
-
-    if (Mod::get()->getSettingValue<bool>("auto-save")) {
-        startSaveGame();
-    }
 }
-
 
 void PSPlayLayer::resetLevel() {
     m_fields->m_inResetLevel = true;
