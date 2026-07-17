@@ -254,9 +254,20 @@ std::string PSPlayLayer::getSaveFilePath(int i_slot, bool i_checkExists) {
 
     if (!m_level) return "";
 
+    // Получаем базовую папку сохранений мода
     std::filesystem::path saveDir = geode::Mod::get()->getSaveDir();
-    std::string fileName = fmt::format("save_{}_{}.psf", m_level->m_levelID.value(), i_slot);
-    std::filesystem::path fullPath = saveDir / fileName;
+    
+    // Определяем имя папки для уровня. Если это редактор (ID = 0), используем имя уровня
+    std::string levelFolder = (m_level->m_levelID.value() == 0) 
+        ? "editor_" + std::string(m_level->m_levelName) 
+        : std::to_string(m_level->m_levelID.value());
+
+    // Формируем путь к подпапке уровня: .../saves/[levelFolder]/
+    std::filesystem::path levelDir = saveDir / levelFolder;
+    
+    // Имя файла внутри папки
+    std::string fileName = fmt::format("save_{}.psf", i_slot);
+    std::filesystem::path fullPath = levelDir / fileName;
 
     if (i_checkExists && !std::filesystem::exists(fullPath)) {
         return "";
