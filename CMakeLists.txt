@@ -64,7 +64,7 @@ include(FetchContent)
 
 FetchContent_Declare(
     PersistenceAPI
-    GIT_REPOSITORY https://github.com/0x5abe/PersistenceAPI.git
+    GIT_REPOSITORY https://github.com/GhostSmash/PersistenceAPI.git
     GIT_TAG        master
 )
 FetchContent_MakeAvailable(PersistenceAPI)
