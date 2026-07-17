@@ -54,16 +54,15 @@ bool PSPlayLayer::init(GJGameLevel* i_level, bool i_useReplay, bool i_dontCreate
 
     return true;
 }
-
 void PSPlayLayer::processCreateObjectsFromSetup() {
     if (!m_fields->m_startedLoadingObjects) {
         m_fields->m_startedLoadingObjects = true;
         
-        // Официальный и безопасный биндинг Geode вместо старого оффсета
-        this->m_uniqueIDBase = 12;
-        
+        // Кастуем слой к типу PersistenceAPI, как это делал автор
         auto papLayer = reinterpret_cast<persistenceAPI::PAPlayLayer*>(this);
-        if (papLayer && papLayer->m_fields) {
+        
+        // Безопасное присвоение без проверки промежуточного m_fields, чтобы компилятор не ругался
+        if (papLayer) {
             papLayer->m_fields->m_uniqueIDBase = 12;
         }
     }
