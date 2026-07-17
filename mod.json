@@ -21,17 +21,18 @@
 		"enhancement",
 		"gameplay"
 	],
-	"dependencies": {
-		},
-		"geode.node-ids": {
+		"dependencies": [
+		{
+			"id": "geode.node-ids",
 			"version": ">=v1.12.0-beta.4",
 			"importance": "required"
 		},
-		"sabe.persistenceapi": {
+		{
+			"id": "sabe.persistenceapi",
 			"version": "v1.1.0",
 			"importance": "required"
 		}
-    },
+	],
 	"settings": {
 		"auto-save": {
 			"default": true,
