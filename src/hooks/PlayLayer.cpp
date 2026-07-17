@@ -63,9 +63,6 @@ bool PSPlayLayer::init(GJGameLevel* i_level, bool i_useReplay, bool i_dontCreate
     if (m_fields->m_signalForAsyncLoad) {
         m_loadingProgress = 0.0f;
     }
-    #if !defined(GEODE_IS_IOS)
-    setupKeybinds();
-    #endif
     setupSavingProgressCircleSprite();
     setupSavingSuccessSprite();
 
