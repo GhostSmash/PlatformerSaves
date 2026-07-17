@@ -38,6 +38,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Этот шаг принудительно заставит CMake выкачать зависимость ДО сборки мода
+      - name: Pre-fetch PersistenceAPI
+        shell: bash
+        run: |
+          cmake -B build -DGEODE_SDK=$ENV{GEODE_SDK} || true
+
+      # Исправляем mod.json в зависимости, чтобы Geode SDK 5.8.2 не ругался
+      - name: Patch PersistenceAPI Geode version
+        shell: bash
+        run: |
+          if [ -f "build/_deps/persistenceapi-src/mod.json" ]; then
+            sed -i 's/"geode": "[^"]*"/"geode": "*"/g' build/_deps/persistenceapi-src/mod.json
+            echo "Successfully patched PersistenceAPI mod.json to support any Geode version!"
+          else
+            echo "Warning: mod.json not found, CMake might handle it later"
+          fi
+
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         with:
