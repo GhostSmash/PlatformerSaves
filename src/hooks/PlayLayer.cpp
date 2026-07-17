@@ -70,8 +70,6 @@ void PSPlayLayer::processCreateObjectsFromSetup() {
     PlayLayer::processCreateObjectsFromSetup();
 }
 
-}
-
 void PSPlayLayer::createObjectsFromSetupFinished() {
     if (m_fields->m_loadingState == LoadingState::Setup) {
         PlayLayer::createObjectsFromSetupFinished();
