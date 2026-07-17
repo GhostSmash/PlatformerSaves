@@ -1,3 +1,8 @@
+## v2.0
+* Перенос на новую версию 2.2081 благодаря Gemini )
+
+
+
 ## v1.1.1
 
 * Fixed a bug that caused incorrect song to play when loading a save
