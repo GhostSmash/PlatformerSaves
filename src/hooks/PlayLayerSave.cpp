@@ -6,6 +6,7 @@
 #include <util/platform.hpp>
 
 using namespace geode::prelude;
+void writeCustomLog(const std::string& message);
 using namespace persistenceAPI;
 using namespace util::platform;
 
@@ -63,11 +64,26 @@ void PSPlayLayer::saveGame() {
 
             std::string l_filePath = getSaveFilePath(-1);
             std::string l_fileDirectory = util::filesystem::getParentDirectoryFromPath(l_filePath);
-            if (!std::filesystem::exists(l_fileDirectory) && !std::filesystem::create_directories(l_fileDirectory)) {
-                m_fields->m_savingState = SavingState::Ready;
-                break;
+                       
+            // Пишем в лог, что пытаемся создать папку
+            writeCustomLog("Попытка создать директорию: " + l_fileDirectory);
+
+            try {
+                // Принудительно создаем дерево директорий
+                std::filesystem::create_directories(l_fileDirectory);
+            } catch (...) {
+                writeCustomLog("Исключение при создании директории!");
             }
 
+            // Проверяем существование папки уже после вызова создания
+            if (!std::filesystem::exists(l_fileDirectory)) {
+                writeCustomLog("Ошибка: Директория всё ещё НЕ существует!");
+                m_fields->m_savingState = SavingState::Ready;
+                break;
+            } else {
+                writeCustomLog("Директория успешно подтверждена!");
+            }
+            
             int l_PAVersion = 2;
             if (m_fields->m_readPSFVersion > 0 && m_fields->m_readPSFVersion < 10) {
                 l_PAVersion = 1;
