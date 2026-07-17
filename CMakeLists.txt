@@ -60,4 +60,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE src/)
 
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    PersistenceAPI
+    GIT_REPOSITORY https://github.com/0x5abe/PersistenceAPI.git
+    GIT_TAG        master
+)
+FetchContent_MakeAvailable(PersistenceAPI)
+
 setup_geode_mod(${PROJECT_NAME} EXTERNALS sabe.persistenceapi)
