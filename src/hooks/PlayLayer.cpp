@@ -250,11 +250,24 @@ std::string PSPlayLayer::getSaveFilePath(int i_slot, bool i_checkExists) {
     if (i_slot == -1) {
         i_slot = m_fields->m_saveSlot;
     }
-    return util::filesystem::getSaveFilePath(m_level, i_slot, i_checkExists);
+    if (i_slot == -1) i_slot = 0;
+
+    if (!m_level) return "";
+
+    std::filesystem::path saveDir = geode::Mod::get()->getSaveDir();
+    std::string fileName = fmt::format("save_{}_{}.psf", m_level->m_levelID.value(), i_slot);
+    std::filesystem::path fullPath = saveDir / fileName;
+
+    if (i_checkExists && !std::filesystem::exists(fullPath)) {
+        return "";
+    }
+
+    return fullPath.string();
 }
 
 bool PSPlayLayer::validSaveExists() {
-    return util::filesystem::validSaveExists(m_level);
+    std::string path = getSaveFilePath(0, true);
+    return !path.empty();
 }
 
 void PSPlayLayer::setupSavingProgressCircleSprite() {
