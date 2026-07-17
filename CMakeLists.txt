@@ -72,7 +72,12 @@ FetchContent_Declare(
 FetchContent_GetProperties(PersistenceAPI)
 if(NOT persistenceapi_POPULATED)
     FetchContent_Populate(PersistenceAPI)
-    # Говорим Geode, где лежат исходники зависимости, вместо передачи .geode файла
-    setup_geode_mod(${PROJECT_NAME} EXTERNALS ${persistenceapi_SOURCE_DIR})
+    
+    # Просто добавляем путь к заголовкам PersistenceAPI в твой проект
+    target_include_directories(${PROJECT_NAME} PRIVATE ${persistenceapi_SOURCE_DIR})
 endif()
+
+# Чистый вызов без ломающих EXTERNALS
+setup_geode_mod(${PROJECT_NAME})
+
 
