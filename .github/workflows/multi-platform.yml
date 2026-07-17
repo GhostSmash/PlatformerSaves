@@ -45,7 +45,7 @@ jobs:
           bindings-ref: main
           combine: true
           cli: "latest"
-          sdk: "nightly"
+          sdk: "stable"
           export-pdb: true
           target: ${{ matrix.config.target }}
           build-config: ${{ matrix.config.build-type || 'Release' }}
