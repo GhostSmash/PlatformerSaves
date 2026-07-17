@@ -38,19 +38,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch PersistenceAPI from Release
-        shell: bash
-        run: |
-          mkdir -p "Build Output"
-          curl -L -o "Build Output/sabe.persistenceapi.geode" "https://github.com/0x5abe/PersistenceAPI/releases/download/v1.1.1/sabe.persistenceapi.geode"
-  
-      - name: Extract in geode-deps
-        shell: bash
-        run: |
-          mkdir -p build/geode-deps/sabe.persistenceapi
-          7z x './Build Output/sabe.persistenceapi.geode' '-o./build/geode-deps/sabe.persistenceapi'
-          echo '{ "required": true }' > build/geode-deps/sabe.persistenceapi/geode-dep-options.json
-
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         with:
