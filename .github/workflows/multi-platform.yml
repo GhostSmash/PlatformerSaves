@@ -1,4 +1,4 @@
-name: Build Geode Mod for platformer
+name: Build Geode Mod
 
 on:
   workflow_dispatch:
