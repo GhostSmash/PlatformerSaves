@@ -67,6 +67,12 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/GhostSmash/PersistenceAPI.git
     GIT_TAG        master
 )
-FetchContent_MakeAvailable(PersistenceAPI)
 
-setup_geode_mod(${PROJECT_NAME} EXTERNALS sabe.persistenceapi)
+# Выкачиваем файлы, но НЕ вызываем MakeAvailable (чтобы избежать конфликта geode-sdk)
+FetchContent_GetProperties(PersistenceAPI)
+if(NOT persistenceapi_POPULATED)
+    FetchContent_Populate(PersistenceAPI)
+    # Говорим Geode, где лежат исходники зависимости, вместо передачи .geode файла
+    setup_geode_mod(${PROJECT_NAME} EXTERNALS ${persistenceapi_SOURCE_DIR})
+endif()
+
