@@ -7,10 +7,10 @@
 		"ios": "2.2081"
 	},
 	"version": "v1.1.2",
-	"id": "sabe.platformersaves",
+	"id": "ghostsmash.platformersaves",
 	"name": "PlatformerSaves",
-	"developer": "Sabe",
-	"description": "Save and load your progress in platformer levels!",
+	"developer": "Smashhyx",
+	"description": "Save and load your progress in platformer levels! (Fork of Sabe's original mod with Android 64-bit and SDK fixes)",
 	"repository": "https://github.com/0x5abe/PlatformerSaves",
 	"resources": {
 		"sprites": [
