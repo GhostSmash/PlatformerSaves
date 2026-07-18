@@ -13,6 +13,7 @@ void writeCustomLog(const std::string& message) {
 }
 #include "PlayLayer.hpp"
 #include "CheckpointObject.hpp"
+#include <util/ObjectTracker.hpp>
 #include "Geode/binding/PlayLayer.hpp"
 #include "domain/CheckpointGameObjectReference.hpp"
 #include "hooks/PauseLayer.hpp"
@@ -196,6 +197,7 @@ CheckpointObject* PSPlayLayer::markCheckpoint() {
                 ).count();
                 m_fields->m_normalModeCheckpoints->addObject(l_checkpointObject);
                 writeCustomLog("Чекпоинт принудительно добавлен в список нормального режима");
+                ObjectTracker::get().registerObject(fmt::format("checkpoint_obj_{}", (void*)l_checkpointObject->m_physicalCheckpointObject), l_checkpointObject->m_physicalCheckpointObject, "markCheckpoint");
                 writeCustomLog(fmt::format(
                     "markCheckpoint: physicalObjPtr={}, retainCount={}",
                     (void*)l_checkpointObject->m_physicalCheckpointObject,
@@ -289,6 +291,7 @@ void PSPlayLayer::onQuit() {
         }
     }
 
+    ObjectTracker::get().dumpAll("onQuit");
     PlayLayer::onQuit();
 }
 
@@ -322,6 +325,7 @@ void PSPlayLayer::registerCheckpointsAndActivatedCheckpoints() {
             (void*)l_checkpoint->m_physicalCheckpointObject,
             l_checkpoint->m_physicalCheckpointObject->retainCount()
         ));
+        ObjectTracker::get().track(fmt::format("checkpoint_obj_{}", (void*)l_checkpoint->m_physicalCheckpointObject), l_checkpoint->m_physicalCheckpointObject, "registerCheckpoints_afterActivate");
         m_timePlayed = l_checkpoint->m_fields->m_timePlayed;
     }
     for (int i = 0; i < m_fields->m_activatedCheckpoints.size(); i++) {
