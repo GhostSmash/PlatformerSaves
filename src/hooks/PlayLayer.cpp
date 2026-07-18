@@ -170,7 +170,6 @@ void PSPlayLayer::postUpdate(float i_unkFloat) {
 CheckpointObject* PSPlayLayer::markCheckpoint() {
     PSCheckpointObject* l_checkpointObject = static_cast<PSCheckpointObject*>(PlayLayer::markCheckpoint());
 
-    // Наш главный лог — проверим, вызывается ли вообще функция игрой
     writeCustomLog("--- Сработал хук markCheckpoint! ---");
 
     if (l_checkpointObject) {
@@ -179,21 +178,31 @@ CheckpointObject* PSPlayLayer::markCheckpoint() {
             m_isPracticeMode ? "ДА" : "НЕТ"));
 
         if (savesEnabled() && !m_isPracticeMode) {
-            // Если это был обычный клик, принудительно заносим его в массив, 
-            // так как оригинальное условие могло его отсечь
-            if (!m_fields->m_normalModeCheckpoints->containsObject(l_checkpointObject)) {
+            bool l_alreadyExists = false;
+            for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
+                PSCheckpointObject* l_existing = static_cast<PSCheckpointObject*>(
+                    m_fields->m_normalModeCheckpoints->objectAtIndex(i)
+                );
+                if (l_existing->m_physicalCheckpointObject == l_checkpointObject->m_physicalCheckpointObject) {
+                    l_alreadyExists = true;
+                    break;
+                }
+            }
+
+            if (!l_alreadyExists) {
                 l_checkpointObject->m_fields->m_timePlayed = m_timePlayed;
                 l_checkpointObject->m_fields->m_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::system_clock::now().time_since_epoch()
                 ).count();
                 m_fields->m_normalModeCheckpoints->addObject(l_checkpointObject);
                 writeCustomLog("Чекпоинт принудительно добавлен в список нормального режима");
-            }
 
-            // Запускаем автосейв без лишних проверок на m_activatedCheckpoint
-            if (Mod::get()->getSettingValue<bool>("auto-save")) {
-                writeCustomLog("Запуск startSaveGame()...");
-                startSaveGame();
+                if (Mod::get()->getSettingValue<bool>("auto-save")) {
+                    writeCustomLog("Запуск startSaveGame()...");
+                    startSaveGame();
+                }
+            } else {
+                writeCustomLog("Чекпоинт на этом физическом объекте уже зарегистрирован — пропускаем дубликат");
             }
         }
     } else {
