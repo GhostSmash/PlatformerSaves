@@ -218,7 +218,7 @@ CheckpointObject* PSPlayLayer::markCheckpoint() {
 
     return l_checkpointObject;
 }
-
+ }
 void PSPlayLayer::checkpointActivated(CheckpointGameObject* i_object) {
     PlayLayer::checkpointActivated(i_object);
 
