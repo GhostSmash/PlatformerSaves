@@ -278,7 +278,9 @@ void PSPlayLayer::registerCheckpointsAndActivatedCheckpoints() {
     for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
         l_checkpoint = static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->objectAtIndex(i));
         m_checkpointArray->addObject(l_checkpoint);
-        PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
+        if (l_checkpoint->m_fields->m_wasLoaded) {
+            PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
+        }
         l_checkpoint->m_physicalCheckpointObject->activateObject();
         m_timePlayed = l_checkpoint->m_fields->m_timePlayed;
     }
