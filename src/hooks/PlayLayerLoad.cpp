@@ -456,6 +456,12 @@ void PSPlayLayer::loadCheckpointFromStream() {
 
     l_checkpoint->m_physicalCheckpointObject->setStartPos(l_checkpoint->m_fields->m_position);
 
+    writeCustomLog(fmt::format(
+        "loadCheckpointFromStream: создан physicalObjPtr={}, retainCount={}",
+        (void*)l_newPhysicalCPO,
+        l_newPhysicalCPO->retainCount()
+    ));
+
 #if defined(PS_DEBUG) && defined(PS_DESCRIBE)
     l_checkpoint->describe();
 #endif
