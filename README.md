@@ -30,7 +30,8 @@ Pick up right where you left off and enjoy taking breaks without having to leave
 You can report a bug by [creating an issue](https://github.com/0x5abe/PlatformerSaves/issues), before creating one please make sure it isn't a duplicate (no one else reported it)
 
 ## Credits
-
+- Gemini and Claude for code update and motivation
+- Smashh (to me) for transferring to a new version
 - The Geode team for the amazing tool they've created and inspiring me to make GD mods
 - Nikki for help with bindings
 - Maromalo for testing and suggestions
