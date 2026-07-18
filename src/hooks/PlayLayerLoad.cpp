@@ -6,6 +6,7 @@
 #include <util/platform.hpp>
 
 using namespace geode::prelude;
+void writeCustomLog(const std::string& message);
 using namespace persistenceAPI;
 using namespace util::platform;
 
