@@ -185,14 +185,13 @@ void PSPlayLayer::loadGame() {
             m_fields->m_loadingState = LoadingState::ReadCheckpoint;
             // falls through
         }
+        
         case LoadingState::ReadCheckpoint: {
-            if (m_fields->m_remainingCheckpointLoadCount > 0) {
+            while (m_fields->m_remainingCheckpointLoadCount > 0) {
                 loadCheckpointFromStream();
                 m_fields->m_remainingCheckpointLoadCount--;
             }
-            if (m_fields->m_remainingCheckpointLoadCount == 0) {
-                m_fields->m_loadingState = LoadingState::ReadActivatedCheckpoints;
-            }
+            m_fields->m_loadingState = LoadingState::ReadActivatedCheckpoints;
             // falls through
         }
         case LoadingState::ReadActivatedCheckpoints: {
@@ -200,6 +199,7 @@ void PSPlayLayer::loadGame() {
             m_fields->m_loadingState = LoadingState::ReadExtraData;
             // falls through
         }
+        
         case LoadingState::ReadExtraData: {
             m_fields->m_stream >> m_effectManager->m_persistentItemCountMap;
 
