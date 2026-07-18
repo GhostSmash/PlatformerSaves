@@ -212,6 +212,7 @@ CheckpointObject* PSPlayLayer::markCheckpoint() {
                     (void*)l_checkpointObject->m_physicalCheckpointObject
                 ));
             }
+        }
     } else {
         writeCustomLog("Ошибка: Оригинальный PlayLayer::markCheckpoint() вернул nullptr");
     }
@@ -307,20 +308,20 @@ void PSPlayLayer::registerCheckpointsAndActivatedCheckpoints() {
         l_checkpoint = static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->objectAtIndex(i));
         m_checkpointArray->addObject(l_checkpoint);
         writeCustomLog(fmt::format(
-                "register: physicalObjPtr={}, wasLoaded={}, retainBEFORE={}",
-                (void*)l_checkpoint->m_physicalCheckpointObject,
-                l_checkpoint->m_fields->m_wasLoaded ? "ДА" : "НЕТ",
-                l_checkpoint->m_physicalCheckpointObject ? l_checkpoint->m_physicalCheckpointObject->retainCount() : -1
-            ));
-            if (l_checkpoint->m_fields->m_wasLoaded) {
-                PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
-            }
-            l_checkpoint->m_physicalCheckpointObject->activateObject();
-            writeCustomLog(fmt::format(
-                "register: physicalObjPtr={}, retainAFTER={}",
-                (void*)l_checkpoint->m_physicalCheckpointObject,
-                l_checkpoint->m_physicalCheckpointObject->retainCount()
-            ));
+            "register: physicalObjPtr={}, wasLoaded={}, retainBEFORE={}",
+            (void*)l_checkpoint->m_physicalCheckpointObject,
+            l_checkpoint->m_fields->m_wasLoaded ? "ДА" : "НЕТ",
+            l_checkpoint->m_physicalCheckpointObject ? l_checkpoint->m_physicalCheckpointObject->retainCount() : -1
+        ));
+        if (l_checkpoint->m_fields->m_wasLoaded) {
+            PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
+        }
+        l_checkpoint->m_physicalCheckpointObject->activateObject();
+        writeCustomLog(fmt::format(
+            "register: physicalObjPtr={}, retainAFTER={}",
+            (void*)l_checkpoint->m_physicalCheckpointObject,
+            l_checkpoint->m_physicalCheckpointObject->retainCount()
+        ));
         m_timePlayed = l_checkpoint->m_fields->m_timePlayed;
     }
     for (int i = 0; i < m_fields->m_activatedCheckpoints.size(); i++) {
