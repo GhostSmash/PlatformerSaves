@@ -13,7 +13,6 @@ void writeCustomLog(const std::string& message) {
 }
 #include "PlayLayer.hpp"
 #include "CheckpointObject.hpp"
-#include <util/ObjectTracker.hpp>
 #include "Geode/binding/PlayLayer.hpp"
 #include "domain/CheckpointGameObjectReference.hpp"
 #include "hooks/PauseLayer.hpp"
@@ -173,59 +172,26 @@ CheckpointObject* PSPlayLayer::markCheckpoint() {
 
     writeCustomLog("--- Сработал хук markCheckpoint! ---");
 
-    if (l_checkpointObject) {
-        writeCustomLog(fmt::format("Чекпоинт создан успешно. savesEnabled: {}, Practice: {}", 
-            savesEnabled() ? "ДА" : "НЕТ", 
-            m_isPracticeMode ? "ДА" : "НЕТ"));
+    if (l_checkpointObject && savesEnabled() && m_fields->m_inPostUpdate && !m_isPracticeMode) {
+        if (m_fields->m_triedPlacingCheckpoint) {
+            m_fields->m_triedPlacingCheckpoint = false;
+        } else if (m_activatedCheckpoint != nullptr) {
+            writeCustomLog("Чекпоинт создан успешно, m_activatedCheckpoint не nullptr — сохраняем");
+            l_checkpointObject->m_fields->m_timePlayed = m_timePlayed;
+            l_checkpointObject->m_fields->m_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+            ).count();
+            m_fields->m_normalModeCheckpoints->addObject(l_checkpointObject);
+            m_fields->m_activatedCheckpoints.push_back(CheckpointGameObjectReference(m_activatedCheckpoint));
 
-        if (savesEnabled() && !m_isPracticeMode) {
-            bool l_alreadyExists = false;
-            for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
-                PSCheckpointObject* l_existing = static_cast<PSCheckpointObject*>(
-                    m_fields->m_normalModeCheckpoints->objectAtIndex(i)
-                );
-                if (l_existing->m_physicalCheckpointObject == l_checkpointObject->m_physicalCheckpointObject) {
-                    l_alreadyExists = true;
-                    break;
-                }
-            }
-
-            if (!l_alreadyExists) {
-                l_checkpointObject->m_fields->m_timePlayed = m_timePlayed;
-                l_checkpointObject->m_fields->m_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::system_clock::now().time_since_epoch()
-                ).count();
-                m_fields->m_normalModeCheckpoints->addObject(l_checkpointObject);
-                writeCustomLog("Чекпоинт принудительно добавлен в список нормального режима");
-                ObjectTracker::get().registerObject(fmt::format("checkpoint_obj_{}", (void*)l_checkpointObject->m_physicalCheckpointObject), l_checkpointObject->m_physicalCheckpointObject, "markCheckpoint");
-                writeCustomLog(fmt::format(
-                    "markCheckpoint: physicalObjPtr={}, retainCount={}",
-                    (void*)l_checkpointObject->m_physicalCheckpointObject,
-                    l_checkpointObject->m_physicalCheckpointObject ? l_checkpointObject->m_physicalCheckpointObject->retainCount() : -1
-                ));
-
-                if (Mod::get()->getSettingValue<bool>("auto-save")) {
-                    writeCustomLog("Запуск startSaveGame()...");
-                    startSaveGame();
-                }
-            } else {
-                writeCustomLog(fmt::format(
-                    "Чекпоинт на этом физическом объекте уже зарегистрирован — пропускаем дубликат. physicalObjPtr={}",
-                    (void*)l_checkpointObject->m_physicalCheckpointObject
-                ));
+            if (Mod::get()->getSettingValue<bool>("auto-save")) {
+                writeCustomLog("Запуск startSaveGame()...");
+                startSaveGame();
             }
         }
-    } else {
-        writeCustomLog("Ошибка: Оригинальный PlayLayer::markCheckpoint() вернул nullptr");
     }
 
     return l_checkpointObject;
-}
-
-void PSPlayLayer::checkpointActivated(CheckpointGameObject* i_object) {
-    PlayLayer::checkpointActivated(i_object);
-
-    writeCustomLog("--- Сработал хук checkpointActivated! ---");
 }
 
 void PSPlayLayer::resetLevel() {
@@ -270,28 +236,6 @@ void PSPlayLayer::resetLevelFromStart() {
 
 void PSPlayLayer::onQuit() {
     s_currentPlayLayer = nullptr;
-
-    writeCustomLog(fmt::format(
-        "--- onQuit: m_checkpointArray count = {}, m_normalModeCheckpoints count = {} ---",
-        m_checkpointArray ? m_checkpointArray->count() : -1,
-        m_fields->m_normalModeCheckpoints ? m_fields->m_normalModeCheckpoints->count() : -1
-    ));
-
-    if (m_fields->m_normalModeCheckpoints) {
-        for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
-            PSCheckpointObject* l_cp = static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->objectAtIndex(i));
-            writeCustomLog(fmt::format(
-                "  чекпоинт[{}]: wasLoaded={}, checkpointRetain={}, physicalObjRetain={}, physicalObjPtr={}",
-                i,
-                l_cp->m_fields->m_wasLoaded ? "ДА" : "НЕТ",
-                l_cp->retainCount(),
-                l_cp->m_physicalCheckpointObject ? l_cp->m_physicalCheckpointObject->retainCount() : -1,
-                (void*)l_cp->m_physicalCheckpointObject
-            ));
-        }
-    }
-
-    ObjectTracker::get().dumpAll("onQuit");
     PlayLayer::onQuit();
 }
 
@@ -310,22 +254,8 @@ void PSPlayLayer::registerCheckpointsAndActivatedCheckpoints() {
     for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
         l_checkpoint = static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->objectAtIndex(i));
         m_checkpointArray->addObject(l_checkpoint);
-        writeCustomLog(fmt::format(
-            "register: physicalObjPtr={}, wasLoaded={}, retainBEFORE={}",
-            (void*)l_checkpoint->m_physicalCheckpointObject,
-            l_checkpoint->m_fields->m_wasLoaded ? "ДА" : "НЕТ",
-            l_checkpoint->m_physicalCheckpointObject ? l_checkpoint->m_physicalCheckpointObject->retainCount() : -1
-        ));
-        if (l_checkpoint->m_fields->m_wasLoaded) {
-            PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
-            l_checkpoint->m_physicalCheckpointObject->activateObject();
-        }
-        writeCustomLog(fmt::format(
-            "register: physicalObjPtr={}, retainAFTER={}",
-            (void*)l_checkpoint->m_physicalCheckpointObject,
-            l_checkpoint->m_physicalCheckpointObject->retainCount()
-        ));
-        ObjectTracker::get().track(fmt::format("checkpoint_obj_{}", (void*)l_checkpoint->m_physicalCheckpointObject), l_checkpoint->m_physicalCheckpointObject, "registerCheckpoints_afterActivate");
+        PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
+        l_checkpoint->m_physicalCheckpointObject->activateObject();
         m_timePlayed = l_checkpoint->m_fields->m_timePlayed;
     }
     for (int i = 0; i < m_fields->m_activatedCheckpoints.size(); i++) {
