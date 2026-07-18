@@ -260,6 +260,16 @@ void PSPlayLayer::resetLevelFromStart() {
 
 void PSPlayLayer::onQuit() {
     s_currentPlayLayer = nullptr;
+
+    writeCustomLog(fmt::format(
+        "--- onQuit: m_checkpointArray count = {}, m_normalModeCheckpoints count = {}, retainCount = {} ---",
+        m_checkpointArray ? m_checkpointArray->count() : -1,
+        m_fields->m_normalModeCheckpoints ? m_fields->m_normalModeCheckpoints->count() : -1,
+        (m_fields->m_normalModeCheckpoints && m_fields->m_normalModeCheckpoints->count() > 0)
+            ? static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->lastObject())->retainCount()
+            : -1
+    ));
+
     PlayLayer::onQuit();
 }
 
