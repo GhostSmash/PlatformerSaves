@@ -1,5 +1,5 @@
 ## v2.0
-* Перенос на новую версию 2.2081 благодаря Gemini )
+* Update for 2.2081 by Smashh (me), Claude and Gemini )))
 
 
 
