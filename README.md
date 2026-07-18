@@ -1,5 +1,3 @@
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://m.youtube.com/watch?v=dQw4w9WgXcQ)
-
 # PlatformerSaves
 
 <img src="./logo.png" alt="PlatformerSaves logo" />
