@@ -196,6 +196,11 @@ CheckpointObject* PSPlayLayer::markCheckpoint() {
                 ).count();
                 m_fields->m_normalModeCheckpoints->addObject(l_checkpointObject);
                 writeCustomLog("Чекпоинт принудительно добавлен в список нормального режима");
+                writeCustomLog(fmt::format(
+                    "markCheckpoint: physicalObjPtr={}, retainCount={}",
+                    (void*)l_checkpointObject->m_physicalCheckpointObject,
+                    l_checkpointObject->m_physicalCheckpointObject ? l_checkpointObject->m_physicalCheckpointObject->retainCount() : -1
+                ));
 
                 if (Mod::get()->getSettingValue<bool>("auto-save")) {
                     writeCustomLog("Запуск startSaveGame()...");
@@ -262,13 +267,24 @@ void PSPlayLayer::onQuit() {
     s_currentPlayLayer = nullptr;
 
     writeCustomLog(fmt::format(
-        "--- onQuit: m_checkpointArray count = {}, m_normalModeCheckpoints count = {}, retainCount = {} ---",
+        "--- onQuit: m_checkpointArray count = {}, m_normalModeCheckpoints count = {} ---",
         m_checkpointArray ? m_checkpointArray->count() : -1,
-        m_fields->m_normalModeCheckpoints ? m_fields->m_normalModeCheckpoints->count() : -1,
-        (m_fields->m_normalModeCheckpoints && m_fields->m_normalModeCheckpoints->count() > 0)
-            ? static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->lastObject())->retainCount()
-            : -1
+        m_fields->m_normalModeCheckpoints ? m_fields->m_normalModeCheckpoints->count() : -1
     ));
+
+    if (m_fields->m_normalModeCheckpoints) {
+        for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
+            PSCheckpointObject* l_cp = static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->objectAtIndex(i));
+            writeCustomLog(fmt::format(
+                "  чекпоинт[{}]: wasLoaded={}, checkpointRetain={}, physicalObjRetain={}, physicalObjPtr={}",
+                i,
+                l_cp->m_fields->m_wasLoaded ? "ДА" : "НЕТ",
+                l_cp->retainCount(),
+                l_cp->m_physicalCheckpointObject ? l_cp->m_physicalCheckpointObject->retainCount() : -1,
+                (void*)l_cp->m_physicalCheckpointObject
+            ));
+        }
+    }
 
     PlayLayer::onQuit();
 }
@@ -288,10 +304,21 @@ void PSPlayLayer::registerCheckpointsAndActivatedCheckpoints() {
     for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
         l_checkpoint = static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->objectAtIndex(i));
         m_checkpointArray->addObject(l_checkpoint);
-        if (l_checkpoint->m_fields->m_wasLoaded) {
-            PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
-        }
-        l_checkpoint->m_physicalCheckpointObject->activateObject();
+        writeCustomLog(fmt::format(
+                "register: physicalObjPtr={}, wasLoaded={}, retainBEFORE={}",
+                (void*)l_checkpoint->m_physicalCheckpointObject,
+                l_checkpoint->m_fields->m_wasLoaded ? "ДА" : "НЕТ",
+                l_checkpoint->m_physicalCheckpointObject ? l_checkpoint->m_physicalCheckpointObject->retainCount() : -1
+            ));
+            if (l_checkpoint->m_fields->m_wasLoaded) {
+                PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
+            }
+            l_checkpoint->m_physicalCheckpointObject->activateObject();
+            writeCustomLog(fmt::format(
+                "register: physicalObjPtr={}, retainAFTER={}",
+                (void*)l_checkpoint->m_physicalCheckpointObject,
+                l_checkpoint->m_physicalCheckpointObject->retainCount()
+            ));
         m_timePlayed = l_checkpoint->m_fields->m_timePlayed;
     }
     for (int i = 0; i < m_fields->m_activatedCheckpoints.size(); i++) {
