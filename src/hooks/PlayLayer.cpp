@@ -318,8 +318,8 @@ void PSPlayLayer::registerCheckpointsAndActivatedCheckpoints() {
         ));
         if (l_checkpoint->m_fields->m_wasLoaded) {
             PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
+            l_checkpoint->m_physicalCheckpointObject->activateObject();
         }
-        l_checkpoint->m_physicalCheckpointObject->activateObject();
         writeCustomLog(fmt::format(
             "register: physicalObjPtr={}, retainAFTER={}",
             (void*)l_checkpoint->m_physicalCheckpointObject,
