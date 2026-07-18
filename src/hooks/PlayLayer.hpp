@@ -123,9 +123,6 @@ public:
     CheckpointObject* markCheckpoint();
 
     $override
-    void checkpointActivated(CheckpointGameObject* i_object);
-
-    $override
     void resetLevel();
 
     $override
