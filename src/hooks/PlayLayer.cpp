@@ -207,9 +207,11 @@ CheckpointObject* PSPlayLayer::markCheckpoint() {
                     startSaveGame();
                 }
             } else {
-                writeCustomLog("Чекпоинт на этом физическом объекте уже зарегистрирован — пропускаем дубликат");
+                writeCustomLog(fmt::format(
+                    "Чекпоинт на этом физическом объекте уже зарегистрирован — пропускаем дубликат. physicalObjPtr={}",
+                    (void*)l_checkpointObject->m_physicalCheckpointObject
+                ));
             }
-        }
     } else {
         writeCustomLog("Ошибка: Оригинальный PlayLayer::markCheckpoint() вернул nullptr");
     }
