@@ -172,22 +172,18 @@ CheckpointObject* PSPlayLayer::markCheckpoint() {
 
     writeCustomLog("--- Сработал хук markCheckpoint! ---");
 
-    if (l_checkpointObject && savesEnabled() && m_fields->m_inPostUpdate && !m_isPracticeMode) {
-        if (m_fields->m_triedPlacingCheckpoint) {
-            m_fields->m_triedPlacingCheckpoint = false;
-        } else if (m_activatedCheckpoint != nullptr) {
-            writeCustomLog("Чекпоинт создан успешно, m_activatedCheckpoint не nullptr — сохраняем");
-            l_checkpointObject->m_fields->m_timePlayed = m_timePlayed;
-            l_checkpointObject->m_fields->m_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now().time_since_epoch()
-            ).count();
-            m_fields->m_normalModeCheckpoints->addObject(l_checkpointObject);
-            m_fields->m_activatedCheckpoints.push_back(CheckpointGameObjectReference(m_activatedCheckpoint));
+    if (l_checkpointObject && savesEnabled() && !m_isPracticeMode && m_activatedCheckpoint != nullptr) {
+        writeCustomLog("Чекпоинт создан успешно, m_activatedCheckpoint не nullptr — сохраняем");
+        l_checkpointObject->m_fields->m_timePlayed = m_timePlayed;
+        l_checkpointObject->m_fields->m_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+        m_fields->m_normalModeCheckpoints->addObject(l_checkpointObject);
+        m_fields->m_activatedCheckpoints.push_back(CheckpointGameObjectReference(m_activatedCheckpoint));
 
-            if (Mod::get()->getSettingValue<bool>("auto-save")) {
-                writeCustomLog("Запуск startSaveGame()...");
-                startSaveGame();
-            }
+        if (Mod::get()->getSettingValue<bool>("auto-save")) {
+            writeCustomLog("Запуск startSaveGame()...");
+            startSaveGame();
         }
     }
 
