@@ -267,45 +267,15 @@ std::string PSPlayLayer::getSaveFilePath(int i_slot, bool i_checkExists) {
     if (i_slot == -1) {
         i_slot = m_fields->m_saveSlot;
     }
-    if (i_slot == -1) i_slot = 0;
-
-    if (!m_level) {
-        writeCustomLog("Ошибка: m_level пустой");
-        return "";
-    }
-
-    // Базовый путь: .../ghostsmash.platformersaves/
-    std::filesystem::path saveDir = geode::Mod::get()->getSaveDir();
-    
-    // Проверяем тип уровня: редактор или онлайн (локальные/официальные тоже пойдут в online или по ID)
-    std::string typeFolder = (m_level->m_levelID.value() == 0) ? "editor" : "online";
-    
-    // ID левела или имя папки для редактора
-    std::string levelFolder = (m_level->m_levelID.value() == 0) 
-        ? "editor_" + std::string(m_level->m_levelName) 
-        : std::to_string(m_level->m_levelID.value());
-
-    // Собираем полный путь к папке: .../ghostsmash.platformersaves/saves/[online|editor]/[id]/
-    std::filesystem::path finalDir = saveDir / "saves" / typeFolder / levelFolder;
-    
-    // Имя файла: slot[номер].psf
-    std::string fileName = fmt::format("slot{}.psf", i_slot);
-    std::filesystem::path fullPath = finalDir / fileName;
-
-    // Пишем в наш файл логов, какой путь сейчас проверяется/создается
-    writeCustomLog("Запрос пути. Файл: " + fullPath.string() + " | Существует: " + (std::filesystem::exists(fullPath) ? "ДА" : "НЕТ"));
-
-    if (i_checkExists && !std::filesystem::exists(fullPath)) {
-        return "";
-    }
-
-    return fullPath.string();
+    std::string l_path = util::filesystem::getSaveFilePath(m_level, i_slot, i_checkExists);
+    writeCustomLog("Запрос пути. Файл: " + l_path + " | Существует: " + (std::filesystem::exists(l_path) ? "ДА" : "НЕТ"));
+    return l_path;
 }
 
 bool PSPlayLayer::validSaveExists() {
-    std::string path = getSaveFilePath(0, true);
-    return !path.empty();
+    return util::filesystem::validSaveExists(m_level);
 }
+
 
 void PSPlayLayer::setupSavingProgressCircleSprite() {
     CCSize l_winSize = CCDirector::sharedDirector()->getWinSize();
