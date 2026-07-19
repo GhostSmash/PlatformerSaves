@@ -242,10 +242,6 @@ void PSPlayLayer::onQuit() {
 
 void PSPlayLayer::updateVisibility(float i_unkFloat) {
     PlayLayer::updateVisibility(i_unkFloat);
-
-    for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
-        static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->objectAtIndex(i))->m_physicalCheckpointObject->setOpacity(0);
-    }
 }
 
 // custom methods
