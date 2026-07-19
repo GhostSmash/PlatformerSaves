@@ -232,6 +232,11 @@ void PSPlayLayer::resetLevelFromStart() {
 
 void PSPlayLayer::onQuit() {
     s_currentPlayLayer = nullptr;
+
+    if (m_fields->m_normalModeCheckpoints) {
+        m_fields->m_normalModeCheckpoints->removeAllObjects();
+    }
+
     PlayLayer::onQuit();
 }
 
