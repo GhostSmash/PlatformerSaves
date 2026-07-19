@@ -248,11 +248,14 @@ void PSPlayLayer::updateVisibility(float i_unkFloat) {
 
 void PSPlayLayer::registerCheckpointsAndActivatedCheckpoints() {
     PSCheckpointObject* l_checkpoint;
+    int l_lastIndex = m_fields->m_normalModeCheckpoints->count() - 1;
     for (int i = 0; i < m_fields->m_normalModeCheckpoints->count(); i++) {
         l_checkpoint = static_cast<PSCheckpointObject*>(m_fields->m_normalModeCheckpoints->objectAtIndex(i));
         m_checkpointArray->addObject(l_checkpoint);
-        PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
-        l_checkpoint->m_physicalCheckpointObject->activateObject();
+        if (i == l_lastIndex) {
+            PlayLayer::addToSection(l_checkpoint->m_physicalCheckpointObject);
+            l_checkpoint->m_physicalCheckpointObject->activateObject();
+        }
         m_timePlayed = l_checkpoint->m_fields->m_timePlayed;
     }
     for (int i = 0; i < m_fields->m_activatedCheckpoints.size(); i++) {
